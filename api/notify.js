@@ -6,6 +6,25 @@
 //  © GSK Productions Inc — Yantra™
 // ═══════════════════════════════════════════════════
 
+function escape(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+async function fetchWithTimeout(url, options, ms = 8000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,48 +34,63 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  const missingEnv = ['YANTRA_MASTER_KEY', 'TELNYX_API_KEY', 'TELNYX_WHATSAPP_NUMBER', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL']
+    .filter(k => !process.env[k]);
+  if (missingEnv.length > 0) {
+    return res.status(500).json({ error: `Missing environment variables: ${missingEnv.join(', ')}` });
+  }
+
   const yantraKey = req.headers['x-yantra-key'];
   if (!yantraKey || yantraKey !== process.env.YANTRA_MASTER_KEY) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { phone, email, title, message, type } = req.body;
+  const { phone, email, title, message, type } = req.body || {};
 
   if (!title || !message) {
     return res.status(400).json({ error: 'title and message are required' });
   }
 
-  const results = { whatsapp: null, email: null };
+  if (!phone && !email) {
+    return res.status(400).json({ error: 'At least one of phone or email is required' });
+  }
+
+  const results = {};
   const errors = [];
 
   if (phone) {
     try {
       const cleanPhone = phone.replace(/\s/g, '').replace(/[^\d+]/g, '');
-      const waMessage = `🌀 *Yantra — ${title}*\n\n${message}\n\n_${new Date().toLocaleString()}_\n\n— Yantra AI\nby GSK Productions Inc`;
-
-      const telnyxRes = await fetch('https://api.telnyx.com/v2/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.TELNYX_API_KEY}`
-        },
-        body: JSON.stringify({
-          from: process.env.TELNYX_WHATSAPP_NUMBER,
-          to: cleanPhone,
-          type: 'whatsapp',
-          text: waMessage
-        })
-      });
-
-      const telnyxData = await telnyxRes.json();
-      if (telnyxRes.ok) {
-        results.whatsapp = 'sent';
-      } else {
-        errors.push(`WhatsApp: ${telnyxData.errors?.[0]?.detail || 'Failed'}`);
+      if (!/^\+\d{7,15}$/.test(cleanPhone)) {
+        errors.push('WhatsApp: Invalid phone number format (must be E.164, e.g. +14155550123)');
         results.whatsapp = 'failed';
+      } else {
+        const waMessage = `🌀 *Yantra — ${title}*\n\n${message}\n\n_${new Date().toLocaleString()}_\n\n— Yantra AI\nby GSK Productions Inc`;
+
+        const telnyxRes = await fetchWithTimeout('https://api.telnyx.com/v2/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.TELNYX_API_KEY}`
+          },
+          body: JSON.stringify({
+            from: process.env.TELNYX_WHATSAPP_NUMBER,
+            to: cleanPhone,
+            type: 'whatsapp',
+            text: waMessage
+          })
+        });
+
+        const telnyxData = await telnyxRes.json();
+        if (telnyxRes.ok) {
+          results.whatsapp = 'sent';
+        } else {
+          errors.push(`WhatsApp: ${telnyxData.errors?.[0]?.detail || 'Failed'}`);
+          results.whatsapp = 'failed';
+        }
       }
     } catch (err) {
-      errors.push(`WhatsApp: ${err.message}`);
+      errors.push(`WhatsApp: ${err.name === 'AbortError' ? 'Request timed out' : err.message}`);
       results.whatsapp = 'error';
     }
   }
@@ -71,11 +105,11 @@ export default async function handler(req, res) {
             <div style="color:#606880;font-size:11px;margin-top:2px;">by GSK Productions Inc</div>
           </div>
           <div style="padding:28px;">
-            <h2 style="margin:0 0 12px;font-size:18px;color:#111;">${title}</h2>
-            <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.6;">${message}</p>
+            <h2 style="margin:0 0 12px;font-size:18px;color:#111;">${escape(title)}</h2>
+            <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.6;">${escape(message)}</p>
             <div style="background:#f5f5f5;border-radius:8px;padding:12px 16px;font-size:13px;color:#666;">
               <strong>Time:</strong> ${new Date().toLocaleString()}<br>
-              <strong>Type:</strong> ${type || 'notification'}
+              <strong>Type:</strong> ${escape(type || 'notification')}
             </div>
           </div>
           <div style="border-top:1px solid #f0f0f0;padding:16px 28px;background:#fafafa;">
@@ -84,7 +118,7 @@ export default async function handler(req, res) {
         </div>
       </body></html>`;
 
-      const resendRes = await fetch('https://api.resend.com/emails', {
+      const resendRes = await fetchWithTimeout('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,12 +140,13 @@ export default async function handler(req, res) {
         results.email = 'failed';
       }
     } catch (err) {
-      errors.push(`Email: ${err.message}`);
+      errors.push(`Email: ${err.name === 'AbortError' ? 'Request timed out' : err.message}`);
       results.email = 'error';
     }
   }
 
-  const allFailed = Object.values(results).every(v => v === 'failed' || v === 'error');
+  const sentChannels = Object.values(results);
+  const allFailed = sentChannels.length > 0 && sentChannels.every(v => v === 'failed' || v === 'error');
   return res.status(allFailed ? 500 : 200).json({
     success: !allFailed,
     results,
