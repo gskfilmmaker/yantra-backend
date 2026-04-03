@@ -6,9 +6,8 @@
     }
   },
   "rewrites": [
-    { "source": "/install", "destination": "/public/install.html" },
-    { "source": "/yantra-extension.crx", "destination": "/public/yantra-extension.crx" },
-    { "source": "/", "destination": "/public/install.html" }
+    { "source": "/install", "destination": "/install.html" },
+    { "source": "/yantra-extension.crx", "destination": "/yantra-extension.crx" }
   ],
   "headers": [
     {
