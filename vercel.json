@@ -5,22 +5,18 @@
       "maxDuration": 10
     }
   },
-  "routes": [
+  "rewrites": [
+    { "source": "/install", "destination": "/public/install.html" },
+    { "source": "/yantra-extension.crx", "destination": "/public/yantra-extension.crx" },
+    { "source": "/", "destination": "/public/install.html" }
+  ],
+  "headers": [
     {
-      "src": "/install",
-      "dest": "/public/install.html"
-    },
-    {
-      "src": "/yantra-extension.crx",
-      "dest": "/public/yantra-extension.crx",
-      "headers": {
-        "Content-Type": "application/x-chrome-extension",
-        "Content-Disposition": "attachment; filename=yantra-extension.crx"
-      }
-    },
-    {
-      "src": "/",
-      "dest": "/public/install.html"
+      "source": "/yantra-extension.crx",
+      "headers": [
+        { "key": "Content-Type", "value": "application/x-chrome-extension" },
+        { "key": "Content-Disposition", "value": "attachment; filename=yantra-extension.crx" }
+      ]
     }
   ]
 }
