@@ -2,20 +2,25 @@
   "version": 2,
   "functions": {
     "api/*.js": {
-      "runtime": "nodejs18.x",
       "maxDuration": 10
     }
   },
   "routes": [
-    { "src": "/install", "dest": "/install.html" }
-  ],
-  "headers": [
     {
-      "source": "/yantra-extension.crx",
-      "headers": [
-        { "key": "Content-Type", "value": "application/x-chrome-extension" },
-        { "key": "Content-Disposition", "value": "attachment; filename=\"yantra-extension.crx\"" }
-      ]
+      "src": "/install",
+      "dest": "/public/install.html"
+    },
+    {
+      "src": "/yantra-extension.crx",
+      "dest": "/public/yantra-extension.crx",
+      "headers": {
+        "Content-Type": "application/x-chrome-extension",
+        "Content-Disposition": "attachment; filename=yantra-extension.crx"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/public/install.html"
     }
   ]
 }
