@@ -5,5 +5,17 @@
       "runtime": "nodejs18.x",
       "maxDuration": 10
     }
-  }
+  },
+  "routes": [
+    { "src": "/install", "dest": "/install.html" }
+  ],
+  "headers": [
+    {
+      "source": "/yantra-extension.crx",
+      "headers": [
+        { "key": "Content-Type", "value": "application/x-chrome-extension" },
+        { "key": "Content-Disposition", "value": "attachment; filename=\"yantra-extension.crx\"" }
+      ]
+    }
+  ]
 }

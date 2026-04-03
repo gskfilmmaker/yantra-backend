@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Install Yantra Extension</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0e1117;
+      color: #e5e5e5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #16181f;
+      border: 1px solid #2a2d3a;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    .brand {
+      font-size: 26px;
+      font-weight: 700;
+      color: #a78bfa;
+      letter-spacing: -0.5px;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #555870;
+      margin-top: 4px;
+      margin-bottom: 36px;
+    }
+
+    .steps {
+      text-align: left;
+      margin-bottom: 36px;
+    }
+
+    .steps h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #555870;
+      margin-bottom: 16px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .step-num {
+      background: #a78bfa22;
+      color: #a78bfa;
+      font-size: 12px;
+      font-weight: 700;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: #aab0c0;
+      line-height: 1.5;
+    }
+
+    .step p code {
+      background: #1e2130;
+      color: #c4b5fd;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #a78bfa;
+      color: #0e1117;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn:hover { background: #c4b5fd; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-icon { font-size: 18px; }
+
+    .note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #3a3d50;
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid #1e2130;
+      font-size: 11px;
+      color: #3a3d50;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🌀</div>
+    <div class="brand">Yantra</div>
+    <div class="tagline">by GSK Productions Inc</div>
+
+    <div class="steps">
+      <h3>How to Install</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Download the extension file below.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Open Chrome and go to <code>chrome://extensions</code></p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Enable <strong>Developer Mode</strong> using the toggle in the top-right corner.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Drag and drop the downloaded <code>.crx</code> file onto the extensions page.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <p>Click <strong>Add Extension</strong> when prompted.</p>
+      </div>
+    </div>
+
+    <a class="btn" href="/yantra-extension.crx" download="yantra-extension.crx">
+      <span class="btn-icon">⬇️</span> Download Yantra Extension
+    </a>
+
+    <p class="note">Compatible with Google Chrome and Chromium-based browsers.<br>Developer mode must be enabled to install.</p>
+
+    <div class="footer">Yantra™ · © 2024–2026 GSK Productions Inc. All Rights Reserved.</div>
+  </div>
+</body>
+</html>
